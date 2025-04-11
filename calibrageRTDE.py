@@ -62,16 +62,16 @@ print("Axes :\nX:", x_axis, "\nY:", y_axis, "\nZ:", z_axis)
 input("va faire un déplacement")
 
 points=[
-    np.array([-0.04, -0.06, -0.08, 1]),
+    np.array([-0.04, -0.06, 0.08, 1]),
     np.array([-0.04, 0.06, 0.08, 1]),
-    np.array([-0.04, -0.12, -0.08, 1]) 
+    np.array([-0.04, -0.12, 0.08, 1]) 
 ]
 
 for i, point in enumerate(points):
     global_point = T @ point
     pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
     rtde_c.moveL(pose_target, speed=0.1, acceleration=0.1)
-    time.sleep(2)  
+    time.sleep(10)  
 
 '''
 local_point1 = np.array([-0.04, -0.06, -0.08, 1]) 

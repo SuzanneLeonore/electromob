@@ -1,0 +1,112 @@
+import numpy as np
+import time
+from scipy.spatial.transform import Rotation as Ro
+from rtde_control import RTDEControlInterface as RTDEControl
+from rtde_receive import RTDEReceiveInterface as RTDEReceive
+
+ROBOT_IP = "10.2.30.60"
+
+rtde_c = RTDEControl(ROBOT_IP)
+rtde_r = RTDEReceive(ROBOT_IP)
+P0 = [-0.02595167,  0.8523917 ,  0.12572524]
+P1 = [0.0439653 , 0.85237297, 0.12583492]
+P2 = [-0.0249712 ,  0.88233544,  0.12582908]
+
+P0 = np.array(P0)
+P1 = np.array(P1)
+P2 = np.array(P2)
+
+#q_current = rtde_r.getActualQ()
+#print(q_current)
+pose_init=[-1.6491854826556605, -1.6341984907733362, 1.8493223190307617, -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
+rtde_c.moveJ(pose_init, speed=0.1, acceleration=0.1)
+ 
+# Calcul du repère local (rotation + origine)
+x_axis = P1 - P0
+x_axis /= np.linalg.norm(x_axis)
+
+temp_y = P2 - P0
+z_axis = np.cross(x_axis, temp_y)
+z_axis /= np.linalg.norm(z_axis)
+
+y_axis = np.cross(z_axis, x_axis)
+
+# Matrice de rotation (repère local → global)
+R = np.column_stack((x_axis, y_axis, z_axis))
+
+T = np.eye(4)
+T[:3, :3] = R
+T[:3, 3] = P0
+
+print("\n=== Repère local défini ===")
+print("Origine :", P0)
+print("Axes :\nX:", x_axis, "\nY:", y_axis, "\nZ:", z_axis)
+input("va faire un déplacement")
+
+
+points=[
+    np.array([-0.04, -0.06, 0.08, 1]),
+    np.array([-0.04, 0.06, 0.08, 1]),
+    np.array([-0.04, -0.12, 0.08, 1]),
+    np.array([-0.04, -0.20, 0.30, 1]),
+]
+
+
+for i, point in enumerate(points):
+    global_point = T @ point
+    pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
+    rtde_c.moveL(pose_target, speed=0.1, acceleration=0.1)
+    time.sleep(5)  
+
+joints=[
+    [-1.6755712668048304, -1.4491103331195276, 0.8367433547973633, -0.9699614683734339, -1.4714487234698694, -1.5762398878680628],
+    [-0.4743412176715296, -1.5091918150531214, 1.348893642425537, -1.3945730368243616, -1.4682758490191858, -2.0456507841693323],
+    [-0.4743412176715296, -1.5091918150531214, 1.348893642425537, -1.3945730368243616, -1.4682758490191858, -2.0456507841693323]
+]
+
+for i, point in enumerate(joints):
+    rtde_c.moveJ(point, speed=0.1, acceleration=0.1)
+    time.sleep(5)  
+
+
+#robot tourne de X degrees
+
+def rotate_UR5_around_local_Z(degrees):
+    pose = rtde_r.getActualTCPPose()
+    pos = np.array(pose[:3])
+    rotvec = np.array(pose[3:])
+
+    R_current = Ro.from_rotvec(rotvec).as_matrix()
+    angle_rad = np.radians(degrees)
+    Rz = Ro.from_euler('z', angle_rad).as_matrix()
+
+    R_new = Rz @ R_current  # rotation Z * orientation actuelle
+    new_rotvec = Ro.from_matrix(R_new).as_rotvec()
+
+    pose_target = list(pos) + list(new_rotvec)
+    print("→ Rotation autour de Z (global) de", degrees, "°")
+    print("Pose cible :", pose_target)
+
+    rtde_c.moveL(pose_target, speed=0.2, acceleration=0.5)
+
+q_current = rtde_r.getActualQ()
+q_target = q_current.copy()
+q_target[5] = -0.0 # par exemple, rotation de 90° (en radians) autour de Z
+#rtde_c.moveJ(q_target, speed=0.1, acceleration=0.1)
+
+#local_point1 = np.array([rtde_r.getActualTCPPose()[:3], 1]) 
+
+#global_point = T @ local_point1
+
+#pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
+
+
+#print("\nDéplacement vers :", pose_target)
+#rtde_c.moveL(pose_target, speed=0.1, acceleration=0.1)
+
+# Attendre la fin du mouvement
+while rtde_c.isProgramRunning():
+    time.sleep(0.1)
+
+rtde_c.stopScript()
+print("Mouvement terminé.")

@@ -13,7 +13,7 @@ P0 = [-0.02595167,  0.8523917 ,  0.12572524]
 P1 = [0.0439653 , 0.85237297, 0.12583492]
 P2 = [-0.0249712 ,  0.88233544,  0.12582908]
 
-injecteur=[-0.4983755735001421, 0.25895164851486685, 0.1858297414071211]
+injecteur=[-0.35783121664972006, -0.2558472234496133, 0.18701865215398125]
 box=[0.000735568204164521, 0.48088659168585735, 0.0010128348377972107]
 
 P0 = np.array(P0)
@@ -26,16 +26,18 @@ box_local= np.array(list(box) + [1])
 input("prendre point de l'injecteur")
 q_current = rtde_r.getActualTCPPose()[:3]
 print(q_current)
+
 input("prendre point de la box")
 q_current = rtde_r.getActualTCPPose()[:3]
 print(q_current)
+'''
 q_current = rtde_r.getActualQ()
 print(q_current)
+
 '''
 pose_init=[-1.6491854826556605, -1.6341984907733362, 1.8493223190307617, -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
 rtde_c.moveJ(pose_init, speed=0.2, acceleration=0.2)
-
-
+'''
 # Calcul du repère local (rotation + origine)
 x_axis = P1 - P0
 x_axis /= np.linalg.norm(x_axis)
@@ -54,7 +56,9 @@ T[:3, :3] = R
 T[:3, 3] = P0
 T_inv = np.linalg.inv(T)
 repere_box = T_inv @ box_local
+repere_box_1 =np.array(list(repere_box[:3])+[1])
 repere_injecteur = T_inv @ injecteur_local
+repere_injecteur_1=np.array(list(repere_injecteur[:3]) + [1])
 
 print("\n=== Repère local défini ===")
 print("Origine :", P0)
@@ -69,35 +73,45 @@ points=[
     np.array([-0.04, -0.20, 0.30, 1]),
     #np.array(repere_injecteur)
 ]
-point1 =repere_injecteur
-point1[1]-=0.14
-point1[2]+=0.20
-point2=point1
-point2[2]-=0.30
-point3=point1
-point3[0]+=0.115
-point4=point3
-point4[3]-=0.30
+point1 = repere_injecteur.copy()
+point1[1] += 0.15
+point1[2] += 0.10
+point1[0] +=-0.01
+point2=point1.copy()
+point2[2] += -0.15
+point3=point1.copy()
+point3[0]+= -0.095
+point4=point3.copy()
+point4[2]-=0.20
+point5=point1.copy()
+point5[2]+=-0.10
 
 points2=[
     np.array(point1),
-    print(point1),
     np.array(point2),
-    print(point2),
     np.array(point1),
-    print(point1),
     np.array(point3),
-    print(point3),
     np.array(point4),
-    print(point4)
+    np.array(point3),
+    np.array(point1),
+    np.array(point5),
+    np.array(point1),
+    np.array(point3),
+    np.array(point4),
+    np.array(point3),
+    np.array(point1),
+    np.array(point2),
+    np.array(point1),
 ]
 
+
+'''
 for i, point in enumerate(points):
     global_point = T @ point
     pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
     rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
     time.sleep(2)  
-
+'''
 joints=[
     [-1.6755712668048304, -1.4491103331195276, 0.8367433547973633, -0.9699614683734339, -1.4714487234698694, -1.5762398878680628],
     [-0.4743412176715296, -1.5091918150531214, 1.348893642425537, -1.3945730368243616, -1.4682758490191858, -2.0456507841693323],
@@ -109,16 +123,28 @@ joints=[
     #[-0.4743412176715296, -1.5091918150531214, 1.348893642425537, -1.3945730368243616, -1.4682758490191858, -2.0456507841693323]
 ]
 
+joints2=[
+    [-1.5707710425006312, -1.9037888685809534, 1.8204197883605957, -1.5371840635882776, -1.4706586042987269, -1.5850275198565882]
+]
+
+'''
 for i, point in enumerate(joints):
     rtde_c.moveJ(point, speed=0.2, acceleration=0.2)
     time.sleep(2)  
+'''
 
 for i, point in enumerate(points2):
     global_point = T @ point
-    pose_target = [float(x) for x in global_point[:3]] 
+    pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
+    print(pose_target)
     rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
     time.sleep(2)  
 
+'''
+for i, point in enumerate(joints2):
+    rtde_c.moveJ(point, speed=0.2, acceleration=0.2)
+    time.sleep(2) 
+'''
 
 #robot tourne de X degrees
 

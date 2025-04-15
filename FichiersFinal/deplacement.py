@@ -20,13 +20,13 @@ pose_init = [-1.6491854826556605, -1.6341984907733362, 1.8493223190307617,
 
 points=[
     np.array([-0.04, -0.06, 0.08, 1]),
-    np.array(tde_r[-0.04, 0.06, 0.08, 1]),
+    np.array([-0.04, 0.06, 0.08, 1]),
     np.array([-0.04, -0.12, 0.08, 1]),
     np.array([-0.04, -0.20, 0.30, 1]),
 ]
 
 robot.bouger(pose_init, 0.1, 0.1)
-pince.lacher()
+pince.prise()
 robot.bougerv2(points[0],0.1, 0.1)
 robot.bougerv2(points[1],0.1, 0.1)
 pince.prise()

@@ -75,4 +75,4 @@ class Robot :
         global_point = Robot.T @ pos
         pose_target = [float(x) for x in global_point[:3]] + self.robot_r.getActualTCPPose()[3:]
         self.robot_c.moveL(pose_target, speed, acceleration)
-        self.deconnexion
+        self.deconnexion()

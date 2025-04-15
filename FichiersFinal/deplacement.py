@@ -3,7 +3,6 @@ import time
 from scipy.spatial.transform import Rotation as Ro
 from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
-import Procedure_final
 
 class Deplacement :
 
@@ -15,8 +14,8 @@ class Deplacement :
         pass
 
     def connexion(self):
-        self.robot_r = rtde_receive.RTDEReceive(self.ip)
-        self.robot_c = rtde_control.RTDEControl(self.ip)
+        self.robot_r = self.rtde_receive.RTDEReceive(self.ip)
+        self.robot_c = self.rtde_control.RTDEControl(self.ip)
 
     def deconnexion(self):
         self.robot_c.disconnect()
@@ -26,6 +25,6 @@ class Deplacement :
         for i, point in enumerate(pos[:5]):
             global_point = T @ point
             pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
-            rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
+            self.rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
             time.sleep(2)
         self.deconnexion

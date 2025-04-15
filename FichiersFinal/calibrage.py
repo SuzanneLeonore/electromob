@@ -18,8 +18,8 @@ class Calibrage :
     def deconnexion(self):
         self.robot_c.disconnect()
 
-    def get_position():
-        return np.array(rtde_r.getActualTCPPose()[:3])
+    def get_position(self):
+        return np.array(self.rtde_r.getActualTCPPose()[:3])
 
 if __name__ == "__main__":
 

@@ -3,7 +3,10 @@ import time
 from scipy.spatial.transform import Rotation as Ro
 from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
-import Procedure_final
+from GripRobot import Pince
+
+
+maPince=Pince()
 
 ROBOT_IP = "10.2.30.60"
 
@@ -61,22 +64,26 @@ repere_box_1 =np.array(list(repere_box[:3])+[1])
 repere_injecteur = T_inv @ injecteur_local
 repere_injecteur_1=np.array(list(repere_injecteur[:3]) + [1])
 
-'''
+
 print("\n=== Repère local défini ===")
 print("Origine :", P0)
 print("Axes :\nX:", x_axis, "\nY:", y_axis, "\nZ:", z_axis)
 input("va faire un déplacement")
-'''
+
 
 def cheminTuile() :
 
     pose_init=[-1.6491854826556605, -1.6341984907733362, 1.8493223190307617, -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
     rtde_c.moveJ(pose_init, speed=0.2, acceleration=0.2)
+
+    maPince.lacher()
     
     for i, point in enumerate(points):
         global_point = T @ point
         pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
         rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
+        if i == 1:
+            maPince.prise()
         time.sleep(2)  
 
     for i, point in enumerate(joints):
@@ -88,6 +95,10 @@ def cheminTuile() :
         pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
         print(pose_target)
         rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
+        if i == 1 or i == 9:
+            maPince.lacher()
+        if i == 4 or i == 12:
+            maPince.prise()
         time.sleep(2)  
 
     
@@ -190,13 +201,12 @@ def rotate_UR5_around_local_Z(degrees):
     rtde_c.moveL(pose_target, speed=0.2, acceleration=0.5)
 
 
-if Procedure_final.convoyeur_data[0][0]==1:
+if __name__ == "__main__":
     cheminTuile()
 
-# Attendre la fin du mouvement
-while rtde_c.isProgramRunning():
-    time.sleep(0.1)
+    while rtde_c.isProgramRunning():
+        time.sleep(0.1)
 
-rtde_c.stopScript()
-print("Mouvement terminé.")
+    rtde_c.stopScript()
+    print("Mouvement terminé.")
 

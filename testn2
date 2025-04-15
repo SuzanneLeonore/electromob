@@ -1,0 +1,11 @@
+from gripperv2 import Pince
+import time
+
+p = Pince()
+
+print("Ouvre pince")
+p.lacher()
+time.sleep(2)
+
+print("Ferme pince")
+p.prise()

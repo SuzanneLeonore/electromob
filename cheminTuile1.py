@@ -3,10 +3,33 @@ import time
 from scipy.spatial.transform import Rotation as Ro
 from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
-from GripRobot import Pince
+#from GripRobot import Pince
 
 
-maPince=Pince()
+#maPince=Pince()
+'''
+import socket
+
+def send_secondary_program(script_code):
+    """Envoie un programme secondaire au robot (n'interrompt pas RTDE)."""
+    secondary_script = f"sec mySecondaryProg():\n{script_code}\nend\n"
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.connect(("10.2.30.60", 30002))
+    sock.sendall(secondary_script.encode('utf-8'))
+    sock.close()
+
+
+def ouvrir_pince():
+    """Commande l'ouverture de la pince OnRobot 2FG7."""
+    script = "  set_tool_digital_out(0, False)"
+    send_secondary_program(script)
+
+def fermer_pince():
+    """Commande la fermeture de la pince OnRobot 2FG7."""
+    script = "  set_tool_digital_out(0, True)"
+    send_secondary_program(script)
+
+'''
 
 ROBOT_IP = "10.2.30.60"
 
@@ -71,40 +94,52 @@ print("Axes :\nX:", x_axis, "\nY:", y_axis, "\nZ:", z_axis)
 input("va faire un déplacement")
 
 
-def cheminTuile() :
+def cheminTuile():
+    print(">> Début de cheminTuile()")
 
-    pose_init=[-1.6491854826556605, -1.6341984907733362, 1.8493223190307617, -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
+    pose_init = [-1.6491854826556605, -1.6341984907733362, 1.8493223190307617,
+                 -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
     rtde_c.moveJ(pose_init, speed=0.2, acceleration=0.2)
+    print(">> MoveJ init OK")
 
-    maPince.lacher()
-    
+    #ouvrir_pince()
+    #print(">> Pince ouverte")
+
     for i, point in enumerate(points):
+        #if i == 1:
+            #fermer_pince()
+            #print(">> Pince fermée (prise tuile)")
+
         global_point = T @ point
         pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
         rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
-        if i == 1:
-            maPince.prise()
-        time.sleep(2)  
+        time.sleep(2)
 
     for i, point in enumerate(joints):
         rtde_c.moveJ(point, speed=0.2, acceleration=0.2)
-        time.sleep(2)  
-    
+        time.sleep(2)
+
     for i, point in enumerate(points2):
         global_point = T @ point
         pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
-        print(pose_target)
         rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
-        if i == 1 or i == 9:
-            maPince.lacher()
-        if i == 4 or i == 12:
-            maPince.prise()
-        time.sleep(2)  
 
-    
+        #if i == 1 or i == 9:
+            #ouvrir_pince()
+            #print(f">> Pince ouverte à l'étape {i}")
+
+        #if i == 4 or i == 12:
+            #fermer_pince()
+            #print(f">> Pince fermée à l'étape {i}")
+
+        time.sleep(2)
+
     for i, point in enumerate(joints2):
         rtde_c.moveJ(point, speed=0.2, acceleration=0.2)
-        time.sleep(2) 
+        time.sleep(2)
+
+    print(">> Fin de cheminTuile()")
+
 
 def deplacement_point(point, indice, distance):
     arrivee=point.copy()

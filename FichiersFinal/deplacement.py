@@ -1,30 +1,39 @@
+from robot import Robot
+from pince import Pince
 import numpy as np
 import time
-from scipy.spatial.transform import Rotation as Ro
-from rtde_control import RTDEControlInterface as RTDEControl
-from rtde_receive import RTDEReceiveInterface as RTDEReceive
+"""
+Nom du fichier : Pince.py
+Auteur : Mattéo CAUX et Inès EL HADRI
+Date : 2024-10-02
+Description : Ce script contient la classe Pince et l'algorithme effectuant testants les actions de la classe
+"""
 
-class Deplacement :
+temps_debut=time.time()
 
-    
+# création des instances de classes
+robot = Robot()
+pince = Pince()
 
-    def __init__(self, IP = "10.2.30.60"):
+pose_init = [-1.6491854826556605, -1.6341984907733362, 1.8493223190307617,
+                 -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
 
-        self.init_pos = [-1.6491854826556605, -1.6341984907733362, 1.8493223190307617, -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
-        pass
+points=[
+    np.array([-0.04, -0.06, 0.08, 1]),
+    np.array(tde_r[-0.04, 0.06, 0.08, 1]),
+    np.array([-0.04, -0.12, 0.08, 1]),
+    np.array([-0.04, -0.20, 0.30, 1]),
+]
 
-    def connexion(self):
-        self.robot_r = self.rtde_receive.RTDEReceive(self.ip)
-        self.robot_c = self.rtde_control.RTDEControl(self.ip)
+robot.bouger(pose_init, 0.1, 0.1)
+pince.lacher()
+robot.bougerv2(points[0],0.1, 0.1)
+robot.bougerv2(points[1],0.1, 0.1)
+pince.prise()
+robot.bougerv2(points[2],0.1, 0.1)
+robot.bougerv2(points[3],0.1, 0.1)
 
-    def deconnexion(self):
-        self.robot_c.disconnect()
 
-    def prendre_Tuile(self, pos):
-        self.connexion
-        for i, point in enumerate(pos[:5]):
-            global_point = T @ point
-            pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
-            self.rtde_c.moveL(pose_target, speed=0.2, acceleration=0.2)
-            time.sleep(2)
-        self.deconnexion
+temps_fin=time.time()
+delta_temps=temps_fin-temps_debut
+print(delta_temps)

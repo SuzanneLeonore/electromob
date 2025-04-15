@@ -5,7 +5,6 @@ from rtde_control import RTDEControlInterface as RTDEControl
 from rtde_receive import RTDEReceiveInterface as RTDEReceive
 import Procedure_final
 
-
 ROBOT_IP = "10.2.30.60"
 
 rtde_c = RTDEControl(ROBOT_IP)
@@ -15,8 +14,8 @@ P0 = [-0.02595167,  0.8523917 ,  0.12572524]
 P1 = [0.0439653 , 0.85237297, 0.12583492]
 P2 = [-0.0249712 ,  0.88233544,  0.12582908]
 
-injecteur=[-0.35783121664972006, -0.2558472234496133, 0.18701865215398125]
-box=[0.000735568204164521, 0.48088659168585735, 0.0010128348377972107]
+injecteur = [-0.35783121664972006, -0.2558472234496133, 0.18701865215398125]
+box = [0.000735568204164521, 0.48088659168585735, 0.0010128348377972107]
 
 P0 = np.array(P0)
 P1 = np.array(P1)
@@ -190,7 +189,9 @@ def rotate_UR5_around_local_Z(degrees):
 
     rtde_c.moveL(pose_target, speed=0.2, acceleration=0.5)
 
-cheminTuile()
+
+if Procedure_final.convoyeur_data[0][0]==1:
+    cheminTuile()
 
 # Attendre la fin du mouvement
 while rtde_c.isProgramRunning():

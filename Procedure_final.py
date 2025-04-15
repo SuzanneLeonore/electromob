@@ -9,7 +9,7 @@ import dashboard_client
 import math
 import cv2 as cv
 import time
-import cheminTuile1
+from cheminTuile1 import cheminTuile
 
 # Variables globales pour partager les données
 convoyeur_data = [0] * 2  # Pour capteurs_convoyeur
@@ -105,8 +105,10 @@ def robot_control_thread():
                     triggered = True
                     print("Déclenchement de la séquence de mouvements.")
                     
-                    cheminTuile1.cheminTuile()
+
+                    cheminTuile()
                     # Exécuter la séquence des mouvements
+                    '''
                     for i, target_point in enumerate(points):
                         print(f"Envoi du mouvement {i+1} au robot via RTDE.")
                          #Utilisation de moveJ avec speed et acceleration (adapter les valeurs selon vos besoins)
@@ -114,7 +116,8 @@ def robot_control_thread():
                         
                         # Attendre un délai pour permettre l'exécution du mouvement (pour la démonstration)
                         time.sleep(4)
-                    
+                    '''
+
                     print("Séquence de mouvements terminée.")
                 
                 # Réinitialiser l'état dès que la valeur revient à 0 afin de pouvoir déclencher de nouveau

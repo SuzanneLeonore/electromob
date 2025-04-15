@@ -108,12 +108,19 @@ points=[
     np.array([-0.04, -0.20, 0.30, 1]),
     #np.array(repere_injecteur)
 ]
+#déplacement 1cm sur X, 15cm sur Y, 10cm sur Z
 point1 = deplacement_point(repere_injecteur, 1, 0.15)
 point1 = deplacement_point(point1, 2, 0.10)
+point1 = deplacement_point(point1, 0, 0.01)
+#déplacement -15cm sur Z
 point2 = deplacement_point(point1, 2, -0.15)
+#déplacement -9.5cm sur X
 point3 = deplacement_point(point1, 0, -0.095)
-point4 = deplacement_point(point3, 2, 0.20)
+#déplacement -20 cm sur Z
+point4 = deplacement_point(point3, 2, -0.20)
+#déplacement -10 cm sur Z
 point5 = deplacement_point(point1, 2, -0.10)
+
 '''
 point1[1] += 0.15
 point1[2] += 0.10
@@ -183,20 +190,7 @@ def rotate_UR5_around_local_Z(degrees):
 
     rtde_c.moveL(pose_target, speed=0.2, acceleration=0.5)
 
-q_current = rtde_r.getActualQ()
-q_target = q_current.copy()
-q_target[5] = -0.0 # par exemple, rotation de 90° (en radians) autour de Z
-#rtde_c.moveJ(q_target, speed=0.1, acceleration=0.1)
-
-#local_point1 = np.array([rtde_r.getActualTCPPose()[:3], 1]) 
-
-#global_point = T @ local_point1
-
-#pose_target = [float(x) for x in global_point[:3]] + rtde_r.getActualTCPPose()[3:]
-
-
-#print("\nDéplacement vers :", pose_target)
-#rtde_c.moveL(pose_target, speed=0.1, acceleration=0.1)
+cheminTuile()
 
 # Attendre la fin du mouvement
 while rtde_c.isProgramRunning():
@@ -204,3 +198,4 @@ while rtde_c.isProgramRunning():
 
 rtde_c.stopScript()
 print("Mouvement terminé.")
+

@@ -57,7 +57,7 @@ class Robot :
         """Déconnexion du robot"""
         self.robot_c.disconnect()
 
-    def bouger(self, pos, speed=0.5, acceleration=0.3):
+    def bougerJ(self, pos, speed=0.2, acceleration=0.2):
         """
         Déplacement du robot selon une pose donnée avec connexion préalable et déconnexion à la fin de l'action.
 
@@ -70,9 +70,30 @@ class Robot :
         self.robot_c.moveJ(pos, speed, acceleration)
         self.deconnexion()
 
-    def bougerv2(self, pos, speed = 0.2, acceleration =0.2) :
+    def bougerL(self, pos, speed = 0.2, acceleration =0.2) :
         self.connexion()
         global_point = Robot.T @ pos
         pose_target = [float(x) for x in global_point[:3]] + self.robot_r.getActualTCPPose()[3:]
         self.robot_c.moveL(pose_target, speed, acceleration)
         self.deconnexion()
+
+    def deplacement_point(self, point, indice, distance):
+        arrivee=point.copy()
+        arrivee[indice]+=distance
+        return arrivee
+
+    def __init__(self):
+        self.pose_init = [-1.6491854826556605, -1.6341984907733362, 1.8493223190307617,
+                 -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
+        #déplacement 1cm sur X, 15cm sur Y, 10cm sur Z
+        self.point1 = self.deplacement_point(self.repere_injecteur_1, 1, 0.147)
+        self.point1 = self.deplacement_point(self.point1, 2, 0.15)
+        self.point1 = self.deplacement_point(self.point1, 0, 0.003)
+        #déplacement -15cm sur Z
+        self.point2 = self.deplacement_point(self.point1, 2, -0.10)
+        #déplacement -9.5cm sur X
+        self.point3 = self.deplacement_point(self.point1, 0, -0.095)
+        #déplacement -20 cm sur Z
+        self.point4 = self.deplacement_point(self.point3, 2, -0.20)
+        #déplacement -10 cm sur Z
+        self.point5 = self.deplacement_point(self.point1, 2, -0.10)

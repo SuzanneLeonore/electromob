@@ -11,7 +11,7 @@ rtde_r = RTDEReceive(ROBOT_IP)
 def get_position():
     return np.array(rtde_r.getActualTCPPose()[:3])
 
-
+'''
 print("### Calibrage repère local avec RTDE ###")
 
 input("Place le robot à l'ORIGINE du repère local (P0), puis appuie sur Entrée...")
@@ -27,3 +27,5 @@ print("Points capturés.")
 print("P0 :", P0)
 print("P1 :", P1)
 print("P2 :", P2)
+'''
+print(rtde_r.getActualQ())

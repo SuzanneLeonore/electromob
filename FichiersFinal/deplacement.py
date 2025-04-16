@@ -1,38 +1,79 @@
+"il faut lancer le programme gripper_open.urp sur l'UR5 pour que la pince s'ouvre"
+
 from robot import Robot
 from pince import Pince
 import numpy as np
 import time
-"""
-Nom du fichier : Pince.py
-Auteur : Mattéo CAUX et Inès EL HADRI
-Date : 2024-10-02
-Description : Ce script contient la classe Pince et l'algorithme effectuant testants les actions de la classe
-"""
-
 temps_debut=time.time()
 
 # création des instances de classes
 robot = Robot()
 pince = Pince()
 
-pose_init = [-1.6491854826556605, -1.6341984907733362, 1.8493223190307617,
-                 -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
 
 points=[
-    np.array([-0.04, -0.06, 0.08, 1]),
-    np.array([-0.04, 0.06, 0.08, 1]),
-    np.array([-0.04, -0.12, 0.08, 1]),
-    np.array([-0.04, -0.20, 0.30, 1]),
+    np.array([-0.02, -0.06, 0.08, 1]),
+    np.array([-0.02, 0.025, 0.08, 1]),
+    np.array([-0.02, -0.12, 0.08, 1]),
+    np.array([-0.02, -0.20, 0.30, 1]),
+    np.array(robot.point1),
+    np.array(robot.point2),
+    np.array(robot.point1),
+    np.array(robot.point3),
+    np.array(robot.point4),
+    np.array(robot.point3),
+    np.array(robot.point1),
+    np.array(robot.point5),
+    np.array(robot.point1),
+    np.array(robot.point3),
+    np.array(robot.point4),
+    np.array(robot.point3),
+    np.array(robot.point1),
+    np.array(robot.point2),
+    np.array(robot.point1),
 ]
 
-robot.bouger(pose_init, 0.1, 0.1)
-pince.prise()
-robot.bougerv2(points[0],0.1, 0.1)
-robot.bougerv2(points[1],0.1, 0.1)
-pince.prise()
-robot.bougerv2(points[2],0.1, 0.1)
-robot.bougerv2(points[3],0.1, 0.1)
+joints=[
+    [-1.6755712668048304, -1.4491103331195276, 0.8367433547973633, -0.9699614683734339, -1.4714487234698694, -1.5762398878680628],
+    [-0.4743412176715296, -1.5091918150531214, 1.348893642425537, -1.3945730368243616, -1.4682758490191858, -2.0456507841693323],
+    [-0.07224733034242803, -1.9188702742206019, 1.8160276412963867, -1.4937194029437464, -1.4703596274005335, -1.5883601347552698],
+    [-1.5707710425006312, -1.9037888685809534, 1.8204197883605957, -1.5371840635882776, -1.4706586042987269, -1.5850275198565882]
+]
 
+'''
+robot.bougerJ(robot.pose_init)
+pince.lacher()
+robot.bougerL(points[0])
+robot.bougerL(points[1])
+pince.prise()
+robot.bougerL(points[2])
+robot.bougerL(points[3])
+robot.bougerJ(joints[0])
+robot.bougerJ(joints[1])
+'''
+robot.bougerL(points[4])
+robot.bougerJ(joints[2])
+robot.bougerL(points[5])
+'''
+pince.lacher()
+robot.bougerL(points[6], 0.1, 0.1)
+robot.bougerL(points[7], 0.1, 0.1)
+pince.prise()
+robot.bougerL(points[8], 0.1, 0.1)
+robot.bougerL(points[9], 0.1, 0.1)
+robot.bougerL(points[10], 0.1, 0.1)
+robot.bougerL(points[11], 0.1, 0.1)
+robot.bougerL(points[12], 0.1, 0.1)
+robot.bougerL(points[13], 0.1, 0.1)
+pince.lacher()
+robot.bougerL(points[14], 0.1, 0.1)
+robot.bougerL(points[15], 0.1, 0.1)
+robot.bougerL(points[16], 0.1, 0.1)
+pince.prise()
+robot.bougerL(points[17], 0.1, 0.1)
+robot.bougerJ(joints[3], 0.1, 0.1)
+
+'''
 
 temps_fin=time.time()
 delta_temps=temps_fin-temps_debut

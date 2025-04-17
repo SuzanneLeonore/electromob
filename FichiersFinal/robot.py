@@ -97,3 +97,32 @@ class Robot :
         self.point4 = self.deplacement_point(self.point3, 2, -0.20)
         #déplacement -10 cm sur Z
         self.point5 = self.deplacement_point(self.point1, 2, -0.10)
+
+        self.points=[
+            np.array([-0.02, -0.06, 0.08, 1]),
+            np.array([-0.02, 0.025, 0.08, 1]),
+            np.array([-0.02, -0.12, 0.08, 1]),
+            np.array([-0.02, -0.20, 0.30, 1]),
+            np.array(self.point1),
+            np.array(self.point2),
+            np.array(self.point1),
+            np.array(self.point3),
+            np.array(self.point4),
+            np.array(self.point3),
+            np.array(self.point1),
+            np.array(self.point5),
+            np.array(self.point1),
+            np.array(self.point3),
+            np.array(self.point4),
+            np.array(self.point3),
+            np.array(self.point1),
+            np.array(self.point2),
+            np.array(self.point1),
+        ]
+
+        self.joints=[
+            [-1.6755712668048304, -1.4491103331195276, 0.8367433547973633, -0.9699614683734339, -1.4714487234698694, -1.5762398878680628],
+            [-0.4743412176715296, -1.5091918150531214, 1.348893642425537, -1.3945730368243616, -1.4682758490191858, -2.0456507841693323],
+            [-0.07224733034242803, -1.9188702742206019, 1.8160276412963867, -1.4937194029437464, -1.4703596274005335, -1.5883601347552698],
+            [-1.5707710425006312, -1.9037888685809534, 1.8204197883605957, -1.5371840635882776, -1.4706586042987269, -1.5850275198565882]
+        ]

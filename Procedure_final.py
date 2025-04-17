@@ -5,11 +5,10 @@ import threading
 import numpy as np 
 import rtde_receive
 import rtde_control
-import dashboard_client
-import math
-import cv2 as cv
 import time
-from cheminTuile1 import cheminTuile
+from pince import Pince
+from robot import Robot
+from deplacement import Move
 
 # Variables globales pour partager les données
 convoyeur_data = [0] * 2  # Pour capteurs_convoyeur
@@ -70,27 +69,47 @@ def mqtt_client_thread():
 ##########################################
 
 def robot_control_thread():
-    # Adresse IP du robot
-    robot_ip = "10.2.30.60"
-    
-    # Initialisation des interfaces RTDE pour le contrôle et la réception de données
-    rtde_c = rtde_control.RTDEControlInterface(robot_ip)
-    rtde_r = rtde_receive.RTDEReceiveInterface(robot_ip)
-    
+    robot = Robot()
+    pince = Pince()
+
     # Définition des points de destination (vecteurs de joints)
     # Vous pouvez définir ici la séquence complète des mouvements à exécuter
-    points = [
-        #[-1.58, -1.8,  1.63, -1.31, -1.6, 1.73],
-        #[-1.58, -1.8,  1.63, -2.90, -1.6, 1.73],
-        #[-1.58, -1.29, 2.39, -4.19, -1.62, 1.67],
-        #[-1.58, -1.21, 2.33, -4.19, -1.62, 1.67],
-        [-1.58, -1.15, 2.22, -4.13, -1.62, 1.67],
-        #[-1.58, -1.25, 2.42, -4.23, -1.62, 1.67],
-        #[-1.58, -1.81, 2.99, -3.24, -1.62, 1.67]
-    ]
-    
+    points = robot.points
+    joints = robot.joints
     # Variable d'état pour s'assurer qu'on ne lance la séquence qu'une fois par activation.
     triggered = False
+
+    actions = [
+        "robot.bougerJ(robot.pose_init)",
+        "pince.lacher()",
+        "robot.bougerL(robot.points[0])",
+        "robot.bougerL(robot.points[1])",
+        "pince.prise()",
+        "robot.bougerL(robot.points[2])",
+        "robot.bougerL(robot.points[3])",
+        "robot.bougerJ(robot.joints[0])",
+        "robot.bougerJ(robot.joints[1])",
+        "robot.bougerL(robot.points[4])",
+        "robot.bougerJ(robot.joints[2])",
+        "robot.bougerL(robot.points[5])",
+        "pince.lacher()",
+        "robot.bougerL(robot.points[6], 0.1, 0.1)",
+        "robot.bougerL(robot.points[7], 0.1, 0.1)",
+        "robot.bougerL(robot.points[8], 0.1, 0.1)",
+        "pince.prise()",
+        "robot.bougerL(robot.points[9], 0.1, 0.1)",
+        "robot.bougerL(robot.points[10], 0.1, 0.1)",
+        "robot.bougerL(robot.points[11], 0.1, 0.1)",
+        "robot.bougerL(robot.points[12], 0.1, 0.1)",
+        "robot.bougerL(robot.points[13], 0.1, 0.1)",
+        "robot.bougerL(robot.points[14], 0.1, 0.1)",
+        "pince.lacher()",
+        "robot.bougerL(robot.points[15], 0.1, 0.1)",
+        "robot.bougerL(robot.points[16], 0.1, 0.1)",
+        "robot.bougerL(robot.points[17], 0.1, 0.1)",
+        "pince.prise()",
+        "robot.bougerJ(robot.joints[3], 0.1, 0.1)",
+        ]
     
     try:
         while True:
@@ -105,19 +124,14 @@ def robot_control_thread():
                     triggered = True
                     print("Déclenchement de la séquence de mouvements.")
                     
-
-                    cheminTuile()
                     # Exécuter la séquence des mouvements
-                    '''
-                    for i, target_point in enumerate(points):
-                        print(f"Envoi du mouvement {i+1} au robot via RTDE.")
-                         #Utilisation de moveJ avec speed et acceleration (adapter les valeurs selon vos besoins)
-                        rtde_c.moveJ(target_point, speed=0.2, acceleration=0.5)
+                    for i in range(len(actions)):
+                        print(f"Envoi de l'action {i+1} au robot via RTDE.")
+                        eval(actions[i])
                         
                         # Attendre un délai pour permettre l'exécution du mouvement (pour la démonstration)
-                        time.sleep(4)
-                    '''
-
+                        #time.sleep(2)
+                    
                     print("Séquence de mouvements terminée.")
                 
                 # Réinitialiser l'état dès que la valeur revient à 0 afin de pouvoir déclencher de nouveau
@@ -131,10 +145,6 @@ def robot_control_thread():
     except Exception as e:
         print("Erreur lors de la communication avec le robot via RTDE :", e)
     
-    finally:
-        # Optionnel : arrête le programme ou libère la connexion si besoin
-        rtde_c.stopScript()  # Arrête le script sur le robot (si nécessaire)
-        print("Contrôle via RTDE terminé")
 
 
 
@@ -153,7 +163,7 @@ if __name__ == "__main__":
     # Lancer le thread de contrôle du robot via RTDE
     robot_thread = threading.Thread(target=robot_control_thread, daemon=True)
     robot_thread.start()
-    
+
     robot_thread.join()  # Attendre la fin du thread robot si non-infini
     
     # Garder le programme actif pour le thread MQTT

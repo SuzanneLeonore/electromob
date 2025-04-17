@@ -49,6 +49,12 @@ P2 = np.array(P2)
 injecteur_local = np.array(list(injecteur) + [1])
 box_local= np.array(list(box) + [1])
 
+q_current = rtde_r.getActualQ()
+print(q_current)
+
+q_current = rtde_r.getActualTCPPose()[:3]
+print(q_current)
+
 '''
 input("prendre point de l'injecteur")
 q_current = rtde_r.getActualTCPPose()[:3]
@@ -58,8 +64,7 @@ input("prendre point de la box")
 q_current = rtde_r.getActualTCPPose()[:3]
 print(q_current)
 
-q_current = rtde_r.getActualQ()
-print(q_current)
+
 
 
 pose_init=[-1.6491854826556605, -1.6341984907733362, 1.8493223190307617, -3.355762783681051, -1.4974659124957483, -1.5762279669391077]
@@ -235,7 +240,7 @@ def rotate_UR5_around_local_Z(degrees):
 
     rtde_c.moveL(pose_target, speed=0.2, acceleration=0.5)
 
-
+'''
 if __name__ == "__main__":
     cheminTuile()
 
@@ -244,4 +249,4 @@ if __name__ == "__main__":
 
     rtde_c.stopScript()
     print("Mouvement terminé.")
-
+'''

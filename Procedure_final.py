@@ -8,7 +8,7 @@ import rtde_control
 import time
 from pince import Pince
 from robot import Robot
-from deplacement import Move
+
 
 # Variables globales pour partager les données
 convoyeur_data = [0] * 2  # Pour capteurs_convoyeur
@@ -80,6 +80,8 @@ def robot_control_thread():
     triggered = False
 
     actions = [
+        "robot.bougerJ(robot.joints[3], 0.1, 0.1)",
+        '''
         "robot.bougerJ(robot.pose_init)",
         "pince.lacher()",
         "robot.bougerL(robot.points[0])",
@@ -88,27 +90,34 @@ def robot_control_thread():
         "robot.bougerL(robot.points[2])",
         "robot.bougerL(robot.points[3])",
         "robot.bougerJ(robot.joints[0])",
+        "robot.bougerL(robot.points[4], 0.05, 0.05)",
+        "robot.bougerL(robot.points[5], 0.05, 0.05)",
+        "robot.bougerL(robot.points[6], 0.05, 0.05)",
         "robot.bougerJ(robot.joints[1])",
-        "robot.bougerL(robot.points[4])",
         "robot.bougerJ(robot.joints[2])",
-        "robot.bougerL(robot.points[5])",
+        "robot.bougerL(robot.points[7])",
+        "robot.bougerL(robot.points[8], 0.05, 0.05)",
         "pince.lacher()",
-        "robot.bougerL(robot.points[6], 0.1, 0.1)",
-        "robot.bougerL(robot.points[7], 0.1, 0.1)",
-        "robot.bougerL(robot.points[8], 0.1, 0.1)",
-        "pince.prise()",
         "robot.bougerL(robot.points[9], 0.1, 0.1)",
+
         "robot.bougerL(robot.points[10], 0.1, 0.1)",
+        
         "robot.bougerL(robot.points[11], 0.1, 0.1)",
+        
+        "pince.prise()",
         "robot.bougerL(robot.points[12], 0.1, 0.1)",
         "robot.bougerL(robot.points[13], 0.1, 0.1)",
         "robot.bougerL(robot.points[14], 0.1, 0.1)",
-        "pince.lacher()",
         "robot.bougerL(robot.points[15], 0.1, 0.1)",
         "robot.bougerL(robot.points[16], 0.1, 0.1)",
         "robot.bougerL(robot.points[17], 0.1, 0.1)",
+        "pince.lacher()",
+        "robot.bougerL(robot.points[18], 0.1, 0.1)",
+        "robot.bougerL(robot.points[19], 0.1, 0.1)",
+        "robot.bougerL(robot.points[20], 0.1, 0.1)",
         "pince.prise()",
-        "robot.bougerJ(robot.joints[3], 0.1, 0.1)",
+        "robot.bougerL(robot.points[21],0.1, 0.1)",
+        '''
         ]
     
     try:

@@ -4,6 +4,7 @@ import pyrealsense2 as rs
 import time
 import math
 
+
 # Pour le contrôle du robot UR5
 try:
     import rtde_control
@@ -17,21 +18,20 @@ class ArucoTracker:
     def __init__(self):
         # --- Configuration utilisateur ---
         self.NUM_MARKERS = 2  # nombre de marqueurs à utiliser pour le calcul du milieu
-        
+
+        self.T_cam_to_base = np.eye(4)
+
         # --- Facteur de correction d'échelle ---
         # 10cm dans le code correspondent à 6.5cm dans la réalité, donc facteur correctif = 10/6.5
         self.scale_correction = 10/6.5  # ≈ 1.54
-        
-        # --- Transformation fixe caméra → base robot (à calibrer) ---
-        self.T_cam_to_base = np.eye(4)
-        self.T_cam_to_base[:3, 3] = [0.4, -0.2, 0.6]  # position de la caméra dans le repère robot
-        
+                
         # --- Initialisation RealSense ---
         self.pipeline = rs.pipeline()
         self.cfg = rs.config()
         self.cfg.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
         self.cfg.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
         self.profile = self.pipeline.start(self.cfg)
+
         self.align = rs.align(rs.stream.color)
         self.depth_intrin = self.profile.get_stream(rs.stream.depth).as_video_stream_profile().get_intrinsics()
         
@@ -67,13 +67,39 @@ class ArucoTracker:
         
         if UR5_AVAILABLE:
             try:
-                # Remplacez par l'adresse IP de votre robot UR5
-                robot_ip = "192.168.1.10"  
+                robot_ip = "10.2.30.60"
                 self.ur5_control = rtde_control.RTDEControlInterface(robot_ip)
                 self.ur5_receive = rtde_receive.RTDEReceiveInterface(robot_ip)
                 print("Robot UR5 connecté avec succès.")
+                
+                # === Mise à jour dynamique de T_cam_to_base ===
+                # 1) Récupérer pose TCP (X, Y, Z, Rx, Ry, Rz)
+                tcp = self.ur5_receive.getActualTCPPose()
+                
+                # 2) Construire la matrice base→TCP
+                T_base_tcp = np.eye(4)
+                T_base_tcp[:3, 3] = tcp[:3]
+                # Rx,Ry,Rz est déjà un vecteur de rotation (Rodrigues)
+                R_base_tcp, _ = cv2.Rodrigues(np.array(tcp[3:6], dtype=float))
+                T_base_tcp[:3, :3] = R_base_tcp
+                
+                # 3) Définir l’offset TCP→Caméra
+                T_tcp_cam = np.eye(4)
+                # 0.103 m devant (X), 0 m latéral (Y), -0.14 m dessous (Z)
+                T_tcp_cam[:3, 3] = [0.103, 0.0, -0.14]
+                
+                # 4) Composer pour obtenir base→Caméra
+                #    C’est justement la transform qu’on applique aux points
+                self.T_cam_to_base = T_base_tcp @ T_tcp_cam
+
+                print("Transform caméra→base calculée dynamiquement.")
             except Exception as e:
-                print(f"Erreur de connexion au robot UR5: {e}")
+                print(f"Erreur connexion ou calcul transform UR5: {e}")
+                # MAIS on laisse la valeur identité en place pour simulation
+
+            
+            except Exception as e:
+                print(f"Erreur connexion ou calcul transform UR5: {e}")
                 self.ur5_control = None
                 self.ur5_receive = None
     
@@ -321,7 +347,7 @@ class ArucoTracker:
             new_pose[0:3] = target_point
             
             # Déplacer le robot à la position cible avec la vitesse spécifiée
-            self.ur5_control.moveL(new_pose, speed, speed * 5)
+            self.ur5_control.moveL(new_pose, speed, 0.1)
             print(f"Robot déplacé vers: {target_point}")
             return True
         
@@ -341,13 +367,13 @@ class ArucoTracker:
         print(f"  Facteur de correction d'échelle appliqué: {self.scale_correction:.2f}")
         
         show_target = False
-        current_axis = 'z'  # Axe par défaut
-        target_distance = 0.1  # Distance par défaut en mètres
+        current_axis = 'y'  # Axe par défaut
+        target_distance = 0.05  # Distance par défaut en mètres
         self.last_midpoint_px = (320, 240)  # Point milieu par défaut au centre de l'image
         
         while True:
             # 1) Lecture et alignement des flux
-            frames = self.pipeline.wait_for_frames()
+            frames = self.pipeline.wait_for_frames(10000)
             aligned = self.align.process(frames)
             depth_frame = aligned.get_depth_frame()
             color_frame = aligned.get_color_frame()
